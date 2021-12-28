@@ -1,8 +1,9 @@
 package middleware
 
 import (
+	. "gateway/configuration"
+
 	"github.com/gofiber/fiber/v2"
-	. "gitlab.com/zaen/gateway/configuration"
 )
 
 // createWebStrategy :

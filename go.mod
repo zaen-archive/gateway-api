@@ -1,4 +1,4 @@
-module gitlab.com/zaen/gateway
+module gateway
 
 go 1.16
 

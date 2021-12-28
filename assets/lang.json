@@ -1,0 +1,83 @@
+[
+    {
+        "domain": 1,
+        "lang": "Node.js (Javacscript)",
+        "editorLang": "javascript",
+        "command": "node",
+        "extension": "js",
+        "type": "interpreter"
+    },{
+        "domain": 2,
+        "lang": "Node.js (Typescript)",
+        "editorLang": "typescript",
+        "command": "ts-node",
+        "extension": "ts",
+        "type": "interpreter"
+    },{
+        "domain": 3,
+        "lang": "Go",
+        "editorLang": "go",
+        "command": "go run",
+        "extension": "go",
+        "type": "compiled"
+    },{
+        "domain": 4,
+        "lang": "C",
+        "editorLang": "c",
+        "command": "gcc",
+        "extension": "c",
+        "type": "compiled"
+    },{
+        "domain": 5,
+        "lang": "CPP",
+        "editorLang": "cpp",
+        "command": "g++",
+        "extension": "cpp",
+        "type": "compiled"
+    },{
+        "domain": 6,
+        "lang": "PHP",
+        "editorLang": "php",
+        "command": "php",
+        "extension": "php",
+        "type": "interpreter"
+    },{
+        "domain": 7,
+        "lang": "Python 3",
+        "editorLang": "python",
+        "command": "python3",
+        "extension": "py",
+        "type": "interpreter"
+    },{
+        "domain": 8,
+        "lang": "Python 2",
+        "editorLang": "python",
+        "command": "python2",
+        "extension": "py",
+        "type": "interpreter"
+    },{
+        "domain": 9,
+        "lang": "C#",
+        "editorLang": "csharp",
+        "command": "mono-csc",
+        "extension": "cs",
+        "type": "compiled",
+        "virtual": "mono"
+    },{
+        "domain": 10,
+        "lang": "Visual Basic",
+        "editorLang": "vb",
+        "command": "vbc",
+        "extension": "vb",
+        "type": "compiled",
+        "virtual": "mono"
+    },{
+        "domain": 11,
+        "lang": "Java",
+        "editorLang": "java",
+        "command": "javac",
+        "extension": "java",
+        "type": "compiled",
+        "virtual": "java"
+    }
+]

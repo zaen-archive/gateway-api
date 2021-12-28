@@ -1,6 +1,6 @@
 package utils
 
-func ArrayContain(arr[] string, contain string) bool {
+func ArrayContain(arr []string, contain string) bool {
 	for _, s := range arr {
 		if s == contain {
 			return true
@@ -8,4 +8,9 @@ func ArrayContain(arr[] string, contain string) bool {
 	}
 
 	return false
+}
+
+// EmptyStrig
+func EmptyString(s *string) bool {
+	return len(*s) == 0
 }

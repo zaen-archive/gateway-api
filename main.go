@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 
+	"gateway/configuration"
+	"gateway/http"
+	"gateway/middleware"
+
 	"github.com/goccy/go-yaml"
-	"gitlab.com/zaen/gateway/configuration"
-	"gitlab.com/zaen/gateway/http"
-	"gitlab.com/zaen/gateway/middleware"
 )
 
 func main() {
@@ -17,18 +18,19 @@ func main() {
 		panic(err)
 	}
 
-	var config configuration.Configuration
+	config := &configuration.Configuration{}
 	dec := yaml.NewDecoder(file)
-	err = dec.Decode(&config)
+	err = dec.Decode(config)
 	if err != nil {
-		return
+		panic(err)
 	}
 
 	// Set Configuration
-	http.Config(&config)
+	http.Config(config)
 
-	// TODO: Set Middleware
+	// Set Default Middleware
 	http.Use(middleware.Recover())
+	http.Use(middleware.Cors(config))
 
 	// Listening
 	fmt.Println("Listening...")

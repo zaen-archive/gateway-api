@@ -1,18 +1,39 @@
 package http
 
 import (
+	"encoding/json"
+	"gateway/configuration"
+
 	"github.com/gofiber/fiber/v2"
-	. "gitlab.com/zaen/gateway/configuration"
-	"gitlab.com/zaen/gateway/middleware"
 )
 
 var router *fiber.App
-var config *Configuration
+var config *configuration.Configuration
+
+func makeError(err string) []byte {
+	errBytes, _ := json.Marshal(
+		map[string]interface{}{
+			"ok":      false,
+			"message": err,
+		},
+	)
+
+	return errBytes
+}
+
+// Handle Error
+func errorHandler(c *fiber.Ctx, e error) error {
+	return c.Send(makeError(e.Error()))
+}
 
 // Config :
-func Config(conf *Configuration) {
+func Config(conf *configuration.Configuration) {
 	config = conf
-	router = fiber.New()
+	router = fiber.New(
+		fiber.Config{
+			ErrorHandler: errorHandler,
+		},
+	)
 }
 
 // Use :
@@ -24,19 +45,23 @@ func Use(middleware ...func(*fiber.Ctx) error) {
 
 // Run :
 func Run() error {
-
 	// Create Statics Web
 	for _, val := range config.Statics {
 		router.Static(val.Alias, val.Path)
 	}
 
+	// Creting Route
 	for i := 0; i < len(config.Endpoints); i++ {
 		endpoint := config.Endpoints[i]
-		registerHandlers(
+		err := registerHandlers(
 			config, &endpoint,
-			middleware.CreateJwtStrategy(&endpoint),
-			middleware.CreateProxyStrategy(&endpoint),
+			// createJwtStrategy(&endpoint),
+			createProxyStrategy(&endpoint),
 		)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return router.Listen("0.0.0.0:" + config.Port)

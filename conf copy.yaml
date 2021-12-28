@@ -1,0 +1,44 @@
+name: Kode Aglis API Gateway
+version: "1.0.0"
+port: "7777"
+address: "0.0.0.0"
+production: false
+
+# ANCHOR
+jwt: &jwt bear_user_ka
+hostTarget: &hostTarget http://localhost:3333
+hostTargetCompiler: &hostTargetCompiler http://localhost:9876
+methodGET: &methodGET GET
+methodPOST: &methodPOST POST
+methodPUT: &methodPUT PUT
+methodOPTIONS: &methodOPTIONS OPTIONS
+methodALL: &methodALL ALL
+
+# HEADER
+header:
+  methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - HEAD
+  credentials: true
+  origins:
+    - http://localhost:5555
+    - http://localhost:4444
+  allowHeaders:
+    - Content-Type
+    - Access-Control-Allow-Headers
+    - Authorization
+
+# Endpoints
+endpoints:
+  - endpoint: /api/test/*
+    hostTarget: *hostTarget
+    urlTarget: /*
+    method: *methodALL
+  - endpoint: /api/:id/book
+    hostTarget: *hostTarget
+    urlTarget: /book/:id
+    method: *methodALL

@@ -16,10 +16,11 @@ type Configuration struct {
 
 // Header : Configuration
 type Header struct {
-	Methods      []string `yaml:"methods"`
-	Credentials  string   `yaml:"credentials"`
-	Origins      []string `yaml:"origins"`
-	AllowHeaders []string `yaml:"allowHeaders"`
+	Methods       []string `yaml:"methods"`
+	Credentials   bool     `yaml:"credentials"`
+	Origins       []string `yaml:"origins"`
+	AllowHeaders  []string `yaml:"allowHeaders"`
+	JwtCookieName string   `yaml:"jwtName"`
 }
 
 // Endpoint : Endpoint struct, for proxy server
@@ -29,6 +30,11 @@ type Endpoint struct {
 	HostTarget string `yaml:"hostTarget"`
 	URLTarget  string `yaml:"urlTarget"`
 	Jwt        string `yaml:"jwt"`
+
+	// Additional or Helper
+	IsStar      bool     `yaml:"IsStar"`
+	Segments    []string `yaml:"segments"`
+	ParamsIndex []int    `yaml:"ParamsIndex"`
 }
 
 // Static : Passive Folder
