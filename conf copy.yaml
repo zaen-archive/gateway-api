@@ -35,10 +35,14 @@ header:
 # Endpoints
 endpoints:
   - endpoint: /api/test/*
-    hostTarget: *hostTarget
-    urlTarget: /*
     method: *methodALL
+    targets:
+      - hostTarget: *hostTarget
+        urlTarget: /*
   - endpoint: /api/:id/book
-    hostTarget: *hostTarget
-    urlTarget: /book/:id
     method: *methodALL
+    targets:
+      - hostTarget: *hostTarget
+        urlTarget: /book/:id
+      - hostTarget: *hostTarget
+        urlTarget: /classify?classifyId=$$classifyId
