@@ -23,18 +23,30 @@ type Header struct {
 	JwtCookieName string   `yaml:"jwtName"`
 }
 
+// EndpointTarget : Target proxy for the endpoint
+type EndpointTarget struct {
+	HostTarget string `yaml:"hostTarget"`
+	URLTarget  string `yaml:"urlTarget"`
+	Method     string `yaml:"method"`
+
+	// Additional or Helper
+	// Used to increase request performance
+	IsStar      bool     `yaml:"IsStar"`
+	Segments    []string `yaml:"segments"`
+	ParamsIndex []int    `yaml:"ParamsIndex"`
+}
+
 // Endpoint : Endpoint struct, for proxy server
 type Endpoint struct {
 	Endpoint   string `yaml:"endpoint"`
 	Method     string `yaml:"method"`
-	HostTarget string `yaml:"hostTarget"`
-	URLTarget  string `yaml:"urlTarget"`
-	Jwt        string `yaml:"jwt"`
+	Sequential bool   `yaml:"sequential"`
 
 	// Additional or Helper
-	IsStar      bool     `yaml:"IsStar"`
-	Segments    []string `yaml:"segments"`
-	ParamsIndex []int    `yaml:"ParamsIndex"`
+	// Used to increase request performance
+	SingleEndpoint bool             `yaml:"singleEndpoint"`
+	Targets        []EndpointTarget `yaml:"targets"`
+	Jwt            string           `yaml:"jwt"`
 }
 
 // Static : Passive Folder

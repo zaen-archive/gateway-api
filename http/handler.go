@@ -11,26 +11,35 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Registring Handlers to HTTP (fast http)
 func registerHandlers(config *configuration.Configuration, endpoint *configuration.Endpoint, handlers ...fiber.Handler) error {
-
-	// Check if wild route or star route exist
-	x := strings.HasSuffix(endpoint.Endpoint, "/*")
-	y := strings.HasSuffix(endpoint.URLTarget, "/*")
-	if (x || y) && !(x && y) {
-		panic("wild route not set correctly on route " + endpoint.Endpoint)
+	// Empty Target
+	if len(endpoint.Targets) == 0 {
+		panic("target route should not be empty")
 	}
 
-	endpoint.IsStar = x && y
+	// Pre-Calculation for gain performance when there are request
+	for i := 0; i < len(endpoint.Targets); i++ {
+		target := &endpoint.Targets[i]
+		x := strings.HasSuffix(endpoint.Endpoint, "/*")
+		y := strings.HasSuffix(target.URLTarget, "/*")
 
-	// Check Route Segments
-	endpoint.Segments = strings.Split(endpoint.Endpoint, "/")
-	for i, val := range endpoint.Segments {
-		if strings.HasPrefix(val, ":") {
-			endpoint.ParamsIndex = append(endpoint.ParamsIndex, i)
+		// Check if wild route or star route exist
+		if (x || y) && !(x && y) {
+			panic("wild route not set correctly on route " + endpoint.Endpoint)
+		}
+		target.IsStar = x && y
+
+		// Check Route Segments
+		target.Segments = strings.Split(endpoint.Endpoint, "/")
+		for i, val := range target.Segments {
+			if strings.HasPrefix(val, ":") {
+				target.ParamsIndex = append(target.ParamsIndex, i)
+			}
 		}
 	}
 
-	// Register Route
+	// Registring Route
 	if endpoint.Method != "" && endpoint.Method != "ALL" {
 		if !utils.ArrayContain(config.Header.Methods, endpoint.Method) {
 			panic(fmt.Sprintf("Endpoint %s have method %s that doesn't exist in allowed methods!.", endpoint.Endpoint, endpoint.Method))
