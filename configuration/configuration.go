@@ -41,12 +41,11 @@ type Endpoint struct {
 	Endpoint   string `yaml:"endpoint"`
 	Method     string `yaml:"method"`
 	Sequential bool   `yaml:"sequential"`
+	DeepMerge  bool   `yaml:"deepMerge"`
 
 	// Additional or Helper
-	// Used to increase request performance
-	SingleEndpoint bool             `yaml:"singleEndpoint"`
-	Targets        []EndpointTarget `yaml:"targets"`
-	Jwt            string           `yaml:"jwt"`
+	Targets []EndpointTarget `yaml:"targets"`
+	Jwt     string           `yaml:"jwt"`
 }
 
 // Static : Passive Folder

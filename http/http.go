@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"gateway/configuration"
+	"gateway/proxy"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -56,7 +57,7 @@ func Run() error {
 		err := registerHandlers(
 			config, &endpoint,
 			// createJwtStrategy(&endpoint),
-			createProxyStrategy(&endpoint),
+			proxy.CreateProxyStrategy(&endpoint),
 		)
 
 		if err != nil {
