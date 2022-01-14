@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"gateway/configuration"
+	"gateway/middleware"
 	"gateway/proxy"
 
 	"github.com/gofiber/fiber/v2"
@@ -51,12 +52,25 @@ func Run() error {
 		router.Static(val.Alias, val.Path)
 	}
 
+	// TODO: This is just for testing purpose
+	router.Get(
+		"/test",
+		middleware.CreateLimitStrategy(&configuration.Endpoint{
+			RateLimiter:  1,
+			RateDuration: 1,
+		}),
+		func(c *fiber.Ctx) error {
+			c.WriteString("Hello WOrld")
+			return nil
+		},
+	)
+
 	// Creting Route
 	for i := 0; i < len(config.Endpoints); i++ {
 		endpoint := config.Endpoints[i]
 		err := registerHandlers(
 			config, &endpoint,
-			// createJwtStrategy(&endpoint),
+			middleware.CreateJwtStrategy(&endpoint),
 			proxy.CreateProxyStrategy(&endpoint),
 		)
 

@@ -1,6 +1,25 @@
 package middleware
 
-// func createLimitStrategy() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 	}
-// }
+import (
+	"gateway/configuration"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+)
+
+// CreateLimitStrategy
+func CreateLimitStrategy(endpoint *configuration.Endpoint) fiber.Handler {
+	rateLimiter := endpoint.RateLimiter
+	rateDuration := endpoint.RateDuration
+	if rateLimiter > 0 && rateDuration == 0 {
+		rateDuration = 1
+	}
+
+	return limiter.New(
+		limiter.Config{
+			Max:      rateLimiter,
+			Duration: time.Duration(rateDuration) * time.Second,
+		},
+	)
+}

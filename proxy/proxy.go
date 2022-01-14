@@ -6,69 +6,55 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/proxy"
 	"github.com/gofiber/fiber/v2/utils"
-	"github.com/valyala/fasthttp"
 )
 
-// type Meta struct {
-// 	body    map[string]interface{}
-// 	headers []byte
-// }
+const INTERNAL_SERVER = 500
 
-// func (meta *Meta) bodyToBytes() []byte {
-// 	val, _ := json.Marshal(meta.body)
-
-// 	return val
-// }
-
-// func (meta *Meta) appendBodyBytes(m []byte) error {
-// 	var v map[string]interface{}
-// 	err := json.Unmarshal(m, &v)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	meta.appendBody(v)
-
-// 	return nil
-// }
-
-// func (meta *Meta) appendBody(m map[string]interface{}) {
-// 	if meta.body == nil {
-// 		meta.body = m
-// 		return
-// 	}
-
-// 	for k, v := range m {
-// 		meta.body[k] = v
-// 	}
-// }
-
-// func (meta *Meta) appendHeader(val []byte) {
-// 	meta.headers = append(meta.headers, val...)
-// }
-
-var client = &fasthttp.Client{
-	NoDefaultUserAgentHeader: true,
-	DisablePathNormalizing:   true,
-}
-
-func createProxy(req *fasthttp.Request, res *fasthttp.Response, endpoint string, target *configuration.EndpointTarget) error {
+// proxify
+func proxify(c *fiber.Ctx, endpoint *configuration.Endpoint, targetIndex int, meta *Meta) error {
 	// Check all the target routes
-	reqUrl := string(req.URI().Path())
-	reqQuery := req.URI().QueryString()
+	reqUrl := string(c.Request().URI().Path())
+	reqQuery := c.Request().URI().QueryString()
 
+	target := endpoint.Targets[targetIndex]
 	urlTarget := target.URLTarget
-	urlDest := endpoint
+	urlDest := endpoint.Endpoint
 
-	// Check Params
+	// Check Params Route
 	reqSegments := strings.Split(reqUrl, "/")
-	for _, val := range target.ParamsIndex {
-		oldSegment := target.Segments[val]
+	for _, val := range endpoint.ParamsIndex {
+		oldSegment := endpoint.Segments[val]
 		newSegment := reqSegments[val]
 
 		urlTarget = strings.ReplaceAll(urlTarget, oldSegment, newSegment)
 		urlDest = strings.Replace(urlDest, oldSegment, newSegment, 1)
+	}
+
+	// Check Params Sequence
+	if targetIndex > 0 {
+
+		// Set Last Body
+		var body map[string]interface{}
+		if endpoint.Merge {
+			body = meta.body
+		}
+
+		// Change Sequential Parameters
+		targetSeg := strings.Split(urlTarget, "/")
+		for _, val := range targetSeg {
+			if strings.HasPrefix(val, "$$") {
+				if body == nil {
+					json.Unmarshal(c.Response().Body(), &body)
+				}
+
+				bodyVal := body[val[2:]]
+				if newVal, ok := bodyVal.(string); ok {
+					urlTarget = strings.ReplaceAll(urlTarget, val, newVal)
+				}
+			}
+		}
 	}
 
 	// Check Star
@@ -82,50 +68,37 @@ func createProxy(req *fasthttp.Request, res *fasthttp.Response, endpoint string,
 	// Set Address Target
 	addr := target.HostTarget + urlTarget
 	if len(reqQuery) > 0 {
-		// TODO: Finish Query String Cumulative
-		// Check if there are some passing value into query parameter
-		// if index > 0 {
-		// }
 		addr += "?" + string(reqQuery)
 	}
 
-	return client.Do(req, res)
+	return proxy.Do(c, addr)
 }
 
 // CreateProxyStrategy
 func CreateProxyStrategy(endpoint *configuration.Endpoint) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-
-		if len(endpoint.Targets) == 1 {
-			return createProxy(c.Request(), c.Response(), endpoint.Endpoint, &endpoint.Targets[0])
+		count := len(endpoint.Targets)
+		if count == 1 {
+			return proxify(c, endpoint, 0, nil)
 		}
 
-		var resBody map[string]interface{}
-		for i := 0; i < len(endpoint.Targets); i++ {
-			res := c.Response()
-			target := &endpoint.Targets[i]
-
-			res.ResetBody()
-
-			err := createProxy(c.Request(), res, endpoint.Endpoint, target)
-			if err != nil {
+		meta := Meta{}
+		for i := 0; i < count; i++ {
+			err := proxify(c, endpoint, i, &meta)
+			statusCode := c.Response().StatusCode()
+			if err != nil || statusCode == INTERNAL_SERVER {
+				c.Response().SetStatusCode(200)
 				return err
 			}
 
-			b := map[string]interface{}{}
-			json.Unmarshal(res.Body(), &b)
-
-			if resBody == nil {
-				resBody = b
-			} else {
-				for key, val := range b {
-					resBody[key] = val
-				}
+			if endpoint.Merge {
+				meta.appendBodyBytes(c.Response().Body(), endpoint.DeepMerge)
 			}
 		}
 
-		val, _ := json.Marshal(resBody)
-		c.Write(val)
+		if endpoint.Merge {
+			c.Response().SetBody(meta.bodyToBytes())
+		}
 
 		return nil
 	}

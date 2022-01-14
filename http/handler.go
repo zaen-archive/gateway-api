@@ -29,13 +29,14 @@ func registerHandlers(config *configuration.Configuration, endpoint *configurati
 			panic("wild route not set correctly on route " + endpoint.Endpoint)
 		}
 		target.IsStar = x && y
+	}
 
-		// Check Route Segments
-		target.Segments = strings.Split(endpoint.Endpoint, "/")
-		for i, val := range target.Segments {
-			if strings.HasPrefix(val, ":") {
-				target.ParamsIndex = append(target.ParamsIndex, i)
-			}
+	// Endpoint Segment
+	// Check Route Segments
+	endpoint.Segments = strings.Split(endpoint.Endpoint, "/")
+	for i, val := range endpoint.Segments {
+		if strings.HasPrefix(val, ":") {
+			endpoint.ParamsIndex = append(endpoint.ParamsIndex, i)
 		}
 	}
 

@@ -31,21 +31,33 @@ type EndpointTarget struct {
 
 	// Additional or Helper
 	// Used to increase request performance
-	IsStar      bool     `yaml:"IsStar"`
-	Segments    []string `yaml:"segments"`
-	ParamsIndex []int    `yaml:"ParamsIndex"`
+	IsStar bool `yaml:"isStar"`
+}
+
+// EndpointJWT
+type EndpointJWT struct {
+	Alghorithm string `yaml:"alghorithm"`
+	Key        string `yaml:"key"`
+	Signature  string `yaml:"signature"`
 }
 
 // Endpoint : Endpoint struct, for proxy server
 type Endpoint struct {
-	Endpoint   string `yaml:"endpoint"`
-	Method     string `yaml:"method"`
-	Sequential bool   `yaml:"sequential"`
-	DeepMerge  bool   `yaml:"deepMerge"`
+	Endpoint   string           `yaml:"endpoint"`
+	Method     string           `yaml:"method"`
+	Sequential bool             `yaml:"sequential"`
+	DeepMerge  bool             `yaml:"deepMerge"`
+	Merge      bool             `yaml:"merge"`
+	Targets    []EndpointTarget `yaml:"targets"`
+
+	// Rate Limiter
+	RateLimiter  int `yam:"rateLimiter"`
+	RateDuration int `yaml:"rateDuration"`
 
 	// Additional or Helper
-	Targets []EndpointTarget `yaml:"targets"`
-	Jwt     string           `yaml:"jwt"`
+	Segments    []string    `yaml:"segments"`
+	ParamsIndex []int       `yaml:"paramsIndex"`
+	Jwt         EndpointJWT `yaml:"jwt"`
 }
 
 // Static : Passive Folder
