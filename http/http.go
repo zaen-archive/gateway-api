@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"gateway/configuration"
 	"gateway/middleware"
 	"gateway/proxy"
@@ -34,6 +35,8 @@ func Config(conf *configuration.Configuration) {
 	router = fiber.New(
 		fiber.Config{
 			ErrorHandler: errorHandler,
+			ServerHeader: "kano_gateway",
+			// Prefork:      true,
 		},
 	)
 }
@@ -60,12 +63,15 @@ func Run() error {
 			RateDuration: 1,
 		}),
 		func(c *fiber.Ctx) error {
+			fmt.Println(c.Hostname())
+			fmt.Println(c.Protocol())
+
 			c.WriteString("Hello WOrld")
 			return nil
 		},
 	)
 
-	// Creting Route
+	// Creating Route
 	for i := 0; i < len(config.Endpoints); i++ {
 		endpoint := config.Endpoints[i]
 		err := registerHandlers(
@@ -79,5 +85,29 @@ func Run() error {
 		}
 	}
 
+	newRoute := fiber.New()
+	router.Use(newRoute)
+
+	// certManager := autocert.Manager{
+	// 	Prompt:     autocert.AcceptTOS,
+	// 	HostPolicy: autocert.HostWhitelist("dev.local"),
+	// 	Cache:      autocert.DirCache("./certs"),
+	// 	Email:      "gooner0709@gmail.com",
+	// }
+	// tlsConf := &tls.Config{
+	// 	GetCertificate: certManager.GetCertificate,
+	// 	NextProtos: []string{
+	// 		"http/1.1", acme.ALPNProto,
+	// 	},
+	// }
+
+	// ln, err := net.Listen("tcp4", ":443")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// lnTls := tls.NewListener(ln, certManager.TLSConfig())
+
 	return router.Listen("0.0.0.0:" + config.Port)
+	// return router.Listener(lnTls)
 }

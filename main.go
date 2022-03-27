@@ -12,8 +12,10 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
+var isListening = false
+
 func main() {
-	file, err := os.Open("./conf.yaml")
+	file, err := os.Open("/conf/conf.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -33,6 +35,12 @@ func main() {
 	http.Use(middleware.Cors(config))
 
 	// Listening
-	fmt.Println("Listening...")
-	log.Fatal(http.Run())
+	if !isListening {
+		isListening = true
+
+		fmt.Println("Listening...")
+		log.Fatal(http.Run())
+	} else {
+		fmt.Println("Cancel the listening...")
+	}
 }

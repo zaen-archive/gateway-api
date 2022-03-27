@@ -18,8 +18,8 @@ func CreateLimitStrategy(endpoint *configuration.Endpoint) fiber.Handler {
 
 	return limiter.New(
 		limiter.Config{
-			Max:      rateLimiter,
-			Duration: time.Duration(rateDuration) * time.Second,
+			Max:        rateLimiter,
+			Expiration: time.Duration(rateDuration) * time.Second,
 		},
 	)
 }

@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"encoding/json"
+	"fmt"
 	"gateway/configuration"
 	"strings"
 
@@ -77,6 +78,9 @@ func proxify(c *fiber.Ctx, endpoint *configuration.Endpoint, targetIndex int, me
 // CreateProxyStrategy
 func CreateProxyStrategy(endpoint *configuration.Endpoint) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+
+		fmt.Println(c.Hostname())
+
 		count := len(endpoint.Targets)
 		if count == 1 {
 			return proxify(c, endpoint, 0, nil)
